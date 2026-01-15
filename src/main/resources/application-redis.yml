@@ -4,6 +4,7 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0} # 0: dev 1: prod 2: test
       timeout: 3000
       lettuce:
         pool:
