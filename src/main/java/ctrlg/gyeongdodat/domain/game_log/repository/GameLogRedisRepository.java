@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface GameLogRedisRepository extends CrudRepository<GameLogRedis, Long> {
+public interface GameLogRedisRepository extends CrudRepository<GameLogRedis, String> {
 
     List<GameLogRedis> findByGameId(String gameId);
 }

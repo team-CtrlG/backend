@@ -48,7 +48,7 @@ class GameLogRedisServiceTest {
                     .build();
 
             GameLogRedis savedLog = GameLogRedis.builder()
-                    .id(1L)
+                    .id("01ARZ3NDEKTSV4RRFFQ69G5FAV")
                     .gameId("game-123")
                     .actorPlayerId("player-456")
                     .targetPlayerId("player-789")
@@ -76,7 +76,7 @@ class GameLogRedisServiceTest {
         @DisplayName("ID로 게임 로그를 정상 조회한다")
         void findById() {
             // given
-            Long logId = 1L;
+            String logId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
             GameLogRedis log = GameLogRedis.builder()
                     .id(logId)
                     .gameId("game-123")
@@ -97,7 +97,7 @@ class GameLogRedisServiceTest {
         @DisplayName("존재하지 않는 ID로 조회하면 예외가 발생한다")
         void findByIdNotFound() {
             // given
-            Long logId = 999L;
+            String logId = "01ARZ3NDEKTSV4RRFFQ69G5NOT";
             given(gameLogRedisRepository.findById(logId)).willReturn(Optional.empty());
 
             // when & then
@@ -117,8 +117,8 @@ class GameLogRedisServiceTest {
         void findByGameId() {
             // given
             String gameId = "game-123";
-            GameLogRedis log1 = GameLogRedis.builder().id(1L).gameId(gameId).build();
-            GameLogRedis log2 = GameLogRedis.builder().id(2L).gameId(gameId).build();
+            GameLogRedis log1 = GameLogRedis.builder().id("01ARZ3NDEKTSV4RRFFQ69G5FA1").gameId(gameId).build();
+            GameLogRedis log2 = GameLogRedis.builder().id("01ARZ3NDEKTSV4RRFFQ69G5FA2").gameId(gameId).build();
 
             given(gameLogRedisRepository.findByGameId(gameId)).willReturn(List.of(log1, log2));
 
@@ -140,8 +140,8 @@ class GameLogRedisServiceTest {
         @DisplayName("전체 게임 로그 목록을 조회한다")
         void findAll() {
             // given
-            GameLogRedis log1 = GameLogRedis.builder().id(1L).build();
-            GameLogRedis log2 = GameLogRedis.builder().id(2L).build();
+            GameLogRedis log1 = GameLogRedis.builder().id("01ARZ3NDEKTSV4RRFFQ69G5FA1").build();
+            GameLogRedis log2 = GameLogRedis.builder().id("01ARZ3NDEKTSV4RRFFQ69G5FA2").build();
 
             given(gameLogRedisRepository.findAll()).willReturn(List.of(log1, log2));
 
@@ -161,7 +161,7 @@ class GameLogRedisServiceTest {
         @DisplayName("정상적으로 게임 로그를 삭제한다")
         void deleteGameLog() {
             // given
-            Long logId = 1L;
+            String logId = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
             given(gameLogRedisRepository.existsById(logId)).willReturn(true);
 
             // when
@@ -175,7 +175,7 @@ class GameLogRedisServiceTest {
         @DisplayName("존재하지 않는 ID로 삭제하면 예외가 발생한다")
         void deleteGameLogNotFound() {
             // given
-            Long logId = 999L;
+            String logId = "01ARZ3NDEKTSV4RRFFQ69G5NOT";
             given(gameLogRedisRepository.existsById(logId)).willReturn(false);
 
             // when & then
@@ -195,8 +195,8 @@ class GameLogRedisServiceTest {
         void deleteByGameId() {
             // given
             String gameId = "game-123";
-            GameLogRedis log1 = GameLogRedis.builder().id(1L).gameId(gameId).build();
-            GameLogRedis log2 = GameLogRedis.builder().id(2L).gameId(gameId).build();
+            GameLogRedis log1 = GameLogRedis.builder().id("01ARZ3NDEKTSV4RRFFQ69G5FA1").gameId(gameId).build();
+            GameLogRedis log2 = GameLogRedis.builder().id("01ARZ3NDEKTSV4RRFFQ69G5FA2").gameId(gameId).build();
 
             given(gameLogRedisRepository.findByGameId(gameId)).willReturn(List.of(log1, log2));
 

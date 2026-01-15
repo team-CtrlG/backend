@@ -17,7 +17,7 @@ public class GameLogCreateCommand {
 
     private GameAction action;
 
-    public GameLogRedis toEntity(Long id) {
+    public GameLogRedis toEntity(String id) {
         return GameLogRedis.builder()
                 .id(id)
                 .gameId(gameId)
