@@ -4,6 +4,7 @@ import ctrlg.gyeongdodat.domain.game_player.enums.ConnectionState;
 import ctrlg.gyeongdodat.domain.game_player.enums.PlayerRole;
 import ctrlg.gyeongdodat.domain.game_player.enums.PlayerStatus;
 import ctrlg.gyeongdodat.domain.game_player.enums.Team;
+import ctrlg.gyeongdodat.domain.game_player.service.command.GamePlayerUpdateCommand;
 import ctrlg.gyeongdodat.global.entity.BaseRedisTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -54,4 +55,38 @@ public class GamePlayerRedis extends BaseRedisTimeEntity {
     private int heartbeatRetryCount;
 
     private LocalDateTime heartbeatLastAt;
+
+    public void update(GamePlayerUpdateCommand command) {
+        if (command.getCaughtCount() != null) {
+            this.caughtCount = command.getCaughtCount();
+        }
+        if (command.getEscapeCount() != null) {
+            this.escapeCount = command.getEscapeCount();
+        }
+        if (command.getStepCount() != null) {
+            this.stepCount = command.getStepCount();
+        }
+        if (command.getDistanceM() != null) {
+            this.distanceM = command.getDistanceM();
+        }
+        if (command.getJailedJailNo() != null) {
+            this.jailedJailNo = command.getJailedJailNo();
+        }
+        if (command.getAttendanceYn() != null) {
+            this.attendanceYn = command.getAttendanceYn();
+        }
+        if (command.getStatus() != null) {
+            this.status = command.getStatus();
+        }
+        if (command.getConnectionState() != null) {
+            this.connectionState = command.getConnectionState();
+        }
+        if (command.getHeartbeatRetryCount() != null) {
+            this.heartbeatRetryCount = command.getHeartbeatRetryCount();
+        }
+        if (command.getHeartbeatLastAt() != null) {
+            this.heartbeatLastAt = command.getHeartbeatLastAt();
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
 }

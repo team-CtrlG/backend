@@ -15,7 +15,7 @@ class GameLogRedisTest {
     @DisplayName("Builder로 GameLogRedis를 생성할 수 있어야 한다")
     void shouldCreateGameLogRedisWithBuilder() {
         // given
-        Long id = 1L;
+        String id = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
         String gameId = "game-123";
         String actorPlayerId = "player-1";
         String targetPlayerId = "player-2";
@@ -49,7 +49,7 @@ class GameLogRedisTest {
 
         // when
         GameLogRedis log = GameLogRedis.builder()
-                .id(1L)
+                .id("01ARZ3NDEKTSV4RRFFQ69G5FAV")
                 .gameId("game-123")
                 .actorPlayerId("player-1")
                 .targetPlayerId("player-2")
@@ -66,7 +66,7 @@ class GameLogRedisTest {
         for (GameAction action : GameAction.values()) {
             // when
             GameLogRedis log = GameLogRedis.builder()
-                    .id(1L)
+                    .id("01ARZ3NDEKTSV4RRFFQ69G5FAV")
                     .gameId("game-123")
                     .actorPlayerId("player-1")
                     .targetPlayerId("player-2")

@@ -17,7 +17,7 @@ import org.springframework.data.redis.core.index.Indexed;
 public class GameLogRedis extends BaseRedisTimeEntity {
 
     @Id
-    private Long id;
+    private String id;
 
     @Indexed
     private String gameId;

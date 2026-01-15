@@ -1,6 +1,7 @@
 package ctrlg.gyeongdodat.domain.game.entity;
 
 import ctrlg.gyeongdodat.domain.game.enums.WinTeam;
+import ctrlg.gyeongdodat.domain.game.service.command.GameUpdateCommand;
 import ctrlg.gyeongdodat.global.entity.BaseRedisTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,4 +41,17 @@ public class GameRedis extends BaseRedisTimeEntity {
     private LocalDateTime startedAt;
 
     private LocalDateTime endedAt;
+
+    public void update(GameUpdateCommand command) {
+        if (command.getWinTeam() != null) {
+            this.winTeam = command.getWinTeam();
+        }
+        if (command.getStartedAt() != null) {
+            this.startedAt = command.getStartedAt();
+        }
+        if (command.getEndedAt() != null) {
+            this.endedAt = command.getEndedAt();
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
 }
