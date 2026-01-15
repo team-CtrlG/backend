@@ -43,8 +43,8 @@ public class GameFacade {
 	 * 게임 삭제 시 관련 플레이어와 로그도 함께 정리
 	 */
 	public void deleteGame(String gameId) {
+		gameService.delete(gameId);
 		playerService.deleteByGameId(gameId);
 		logService.deleteByGameId(gameId);
-		gameService.delete(gameId);
 	}
 }
