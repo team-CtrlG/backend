@@ -1,6 +1,7 @@
 package ctrlg.gyeongdodat.api.game.controller;
 
 import ctrlg.gyeongdodat.api.game.facade.GameFacade;
+import ctrlg.gyeongdodat.domain.game.dto.SetGameAreaRequest;
 import ctrlg.gyeongdodat.domain.game.entity.GameRedis;
 import ctrlg.gyeongdodat.domain.game.service.command.GameCreateCommand;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,18 @@ public class GameSocketController {
 	public void findGame(@DestinationVariable String gameId) {
 		GameRedis game = gameFacade.findGameById(gameId);
 		messagingTemplate.convertAndSend("/send/game/" + gameId + "/info", game);
+	}
+
+	/**
+	 * 게임 활동 범위 지정
+	 * Client sends to: /app/game/{gameId}/set-area
+	 * Broadcasts to: /send/game/{gameId}/area-set
+	 */
+	@MessageMapping("/game/{gameId}/set-area")
+	public void setGameArea(@DestinationVariable String gameId, @Payload SetGameAreaRequest request) {
+		log.info("Setting game area for game {}", gameId);
+		GameRedis game = gameFacade.setGameArea(gameId, request.getGameArea());
+		messagingTemplate.convertAndSend("/send/game/" + gameId + "/area-set", game);
 	}
 
 	/**

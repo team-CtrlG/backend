@@ -1,5 +1,6 @@
 package ctrlg.gyeongdodat.domain.game.entity;
 
+import ctrlg.gyeongdodat.domain.game.dto.Location;
 import ctrlg.gyeongdodat.domain.game.enums.WinTeam;
 import ctrlg.gyeongdodat.domain.game.service.command.GameUpdateCommand;
 import ctrlg.gyeongdodat.global.entity.BaseRedisTimeEntity;
@@ -13,6 +14,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @SuperBuilder
@@ -34,6 +36,9 @@ public class GameRedis extends BaseRedisTimeEntity {
     private String jailImage;
 
     @Builder.Default
+    private List<Location> gameArea = new java.util.ArrayList<>();
+
+    @Builder.Default
     private WinTeam winTeam = WinTeam.UNKNOWN;
 
     private String rulesJson;
@@ -51,6 +56,9 @@ public class GameRedis extends BaseRedisTimeEntity {
         }
         if (command.getEndedAt() != null) {
             this.endedAt = command.getEndedAt();
+        }
+        if (command.getGameArea() != null) {
+            this.gameArea = command.getGameArea();
         }
         this.updatedAt = LocalDateTime.now();
     }
