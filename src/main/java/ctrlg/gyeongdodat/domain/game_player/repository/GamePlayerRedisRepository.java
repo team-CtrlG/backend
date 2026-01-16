@@ -8,4 +8,6 @@ import java.util.List;
 public interface GamePlayerRedisRepository extends CrudRepository<GamePlayerRedis, String> {
 
     List<GamePlayerRedis> findByGameId(String gameId);
+
+    GamePlayerRedis findByGameIdAndThiefNumber(String gameId, Integer thiefNumber);
 }

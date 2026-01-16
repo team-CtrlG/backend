@@ -262,4 +262,159 @@ class GamePlayerRedisServiceTest {
             verify(gamePlayerRedisRepository).deleteAll(List.of(player1, player2));
         }
     }
+
+    @Nested
+    @DisplayName("getNextThiefNumber 메서드")
+    class GetNextThiefNumber {
+
+        @Test
+        @DisplayName("게임에 도둑이 없으면 1을 반환한다")
+        void getNextThiefNumberEmpty() {
+            // given
+            String gameId = "game-123";
+            given(gamePlayerRedisRepository.findByGameId(gameId)).willReturn(List.of());
+
+            // when
+            Integer result = gamePlayerRedisService.getNextThiefNumber(gameId);
+
+            // then
+            assertThat(result).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("기존 도둑들의 최대 번호에 1을 더해 반환한다")
+        void getNextThiefNumberWithExisting() {
+            // given
+            String gameId = "game-123";
+            GamePlayerRedis thief1 = GamePlayerRedis.builder()
+                    .id("thief-1")
+                    .gameId(gameId)
+                    .team(Team.THIEF)
+                    .thiefNumber(1)
+                    .build();
+            GamePlayerRedis thief2 = GamePlayerRedis.builder()
+                    .id("thief-2")
+                    .gameId(gameId)
+                    .team(Team.THIEF)
+                    .thiefNumber(3)
+                    .build();
+            GamePlayerRedis police = GamePlayerRedis.builder()
+                    .id("police-1")
+                    .gameId(gameId)
+                    .team(Team.POLICE)
+                    .thiefNumber(null)
+                    .build();
+
+            given(gamePlayerRedisRepository.findByGameId(gameId)).willReturn(List.of(thief1, thief2, police));
+
+            // when
+            Integer result = gamePlayerRedisService.getNextThiefNumber(gameId);
+
+            // then
+            assertThat(result).isEqualTo(4);
+        }
+
+        @Test
+        @DisplayName("경찰만 있으면 1을 반환한다")
+        void getNextThiefNumberOnlyPolice() {
+            // given
+            String gameId = "game-123";
+            GamePlayerRedis police = GamePlayerRedis.builder()
+                    .id("police-1")
+                    .gameId(gameId)
+                    .team(Team.POLICE)
+                    .thiefNumber(null)
+                    .build();
+
+            given(gamePlayerRedisRepository.findByGameId(gameId)).willReturn(List.of(police));
+
+            // when
+            Integer result = gamePlayerRedisService.getNextThiefNumber(gameId);
+
+            // then
+            assertThat(result).isEqualTo(1);
+        }
+    }
+
+    @Nested
+    @DisplayName("assignThiefNumber 메서드")
+    class AssignThiefNumber {
+
+        @Test
+        @DisplayName("도둑 팀인 경우 번호를 자동 부여한다")
+        void assignThiefNumberForThief() {
+            // given
+            String gameId = "game-123";
+            String playerId = "player-123";
+
+            GamePlayerRedis player = GamePlayerRedis.builder()
+                    .id(playerId)
+                    .gameId(gameId)
+                    .team(Team.THIEF)
+                    .thiefNumber(null)
+                    .build();
+
+            GamePlayerRedis updatedPlayer = GamePlayerRedis.builder()
+                    .id(playerId)
+                    .gameId(gameId)
+                    .team(Team.THIEF)
+                    .thiefNumber(1)
+                    .build();
+
+            given(gamePlayerRedisRepository.findById(playerId)).willReturn(Optional.of(player));
+            given(gamePlayerRedisRepository.findByGameId(gameId)).willReturn(List.of());
+            given(gamePlayerRedisRepository.save(any(GamePlayerRedis.class))).willReturn(updatedPlayer);
+
+            // when
+            GamePlayerRedis result = gamePlayerRedisService.assignThiefNumber(playerId);
+
+            // then
+            assertThat(result.getThiefNumber()).isEqualTo(1);
+            verify(gamePlayerRedisRepository).save(any(GamePlayerRedis.class));
+        }
+
+        @Test
+        @DisplayName("경찰 팀인 경우 번호를 부여하지 않는다")
+        void assignThiefNumberForPolice() {
+            // given
+            String playerId = "player-123";
+
+            GamePlayerRedis police = GamePlayerRedis.builder()
+                    .id(playerId)
+                    .gameId("game-123")
+                    .team(Team.POLICE)
+                    .thiefNumber(null)
+                    .build();
+
+            given(gamePlayerRedisRepository.findById(playerId)).willReturn(Optional.of(police));
+
+            // when
+            GamePlayerRedis result = gamePlayerRedisService.assignThiefNumber(playerId);
+
+            // then
+            assertThat(result.getThiefNumber()).isNull();
+        }
+
+        @Test
+        @DisplayName("이미 도둑 번호가 있는 경우 기존 번호를 유지한다")
+        void assignThiefNumberAlreadyAssigned() {
+            // given
+            String playerId = "player-123";
+
+            GamePlayerRedis thief = GamePlayerRedis.builder()
+                    .id(playerId)
+                    .gameId("game-123")
+                    .team(Team.THIEF)
+                    .thiefNumber(5)
+                    .build();
+
+            given(gamePlayerRedisRepository.findById(playerId)).willReturn(Optional.of(thief));
+
+            // when
+            GamePlayerRedis result = gamePlayerRedisService.assignThiefNumber(playerId);
+
+            // then
+            assertThat(result.getThiefNumber()).isEqualTo(5);
+        }
+    }
 }

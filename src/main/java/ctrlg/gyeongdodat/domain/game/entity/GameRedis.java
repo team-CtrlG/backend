@@ -43,6 +43,8 @@ public class GameRedis extends BaseRedisTimeEntity {
 
     private String rulesJson;
 
+    private String attendanceCode;
+
     private LocalDateTime startedAt;
 
     private LocalDateTime endedAt;
@@ -59,6 +61,9 @@ public class GameRedis extends BaseRedisTimeEntity {
         }
         if (command.getGameArea() != null) {
             this.gameArea = command.getGameArea();
+        }
+        if (command.getAttendanceCode() != null) {
+            this.attendanceCode = command.getAttendanceCode();
         }
         this.updatedAt = LocalDateTime.now();
     }

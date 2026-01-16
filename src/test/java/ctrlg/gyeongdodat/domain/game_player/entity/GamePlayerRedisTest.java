@@ -4,6 +4,7 @@ import ctrlg.gyeongdodat.domain.game_player.enums.ConnectionState;
 import ctrlg.gyeongdodat.domain.game_player.enums.PlayerRole;
 import ctrlg.gyeongdodat.domain.game_player.enums.PlayerStatus;
 import ctrlg.gyeongdodat.domain.game_player.enums.Team;
+import ctrlg.gyeongdodat.domain.game_player.service.command.GamePlayerUpdateCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +29,7 @@ class GamePlayerRedisTest {
         int stepCount = 1000;
         int distanceM = 5000;
         Integer jailedJailNo = 1;
+        Integer thiefNumber = 42;
         boolean attendanceYn = true;
         PlayerStatus status = PlayerStatus.JAILED;
         ConnectionState connectionState = ConnectionState.CONNECTED;
@@ -48,6 +50,7 @@ class GamePlayerRedisTest {
                 .stepCount(stepCount)
                 .distanceM(distanceM)
                 .jailedJailNo(jailedJailNo)
+                .thiefNumber(thiefNumber)
                 .attendanceYn(attendanceYn)
                 .status(status)
                 .connectionState(connectionState)
@@ -68,6 +71,7 @@ class GamePlayerRedisTest {
         assertThat(player.getStepCount()).isEqualTo(stepCount);
         assertThat(player.getDistanceM()).isEqualTo(distanceM);
         assertThat(player.getJailedJailNo()).isEqualTo(jailedJailNo);
+        assertThat(player.getThiefNumber()).isEqualTo(thiefNumber);
         assertThat(player.isAttendanceYn()).isEqualTo(attendanceYn);
         assertThat(player.getStatus()).isEqualTo(status);
         assertThat(player.getConnectionState()).isEqualTo(connectionState);
@@ -143,5 +147,87 @@ class GamePlayerRedisTest {
 
         // then
         assertThat(player.getJailedJailNo()).isNull();
+    }
+
+    @Test
+    @DisplayName("thiefNumber가 null이어도 생성할 수 있어야 한다 (경찰인 경우)")
+    void shouldAllowNullThiefNumber() {
+        // when
+        GamePlayerRedis player = GamePlayerRedis.builder()
+                .id("player-123")
+                .team(Team.POLICE)
+                .thiefNumber(null)
+                .build();
+
+        // then
+        assertThat(player.getThiefNumber()).isNull();
+    }
+
+    @Test
+    @DisplayName("update 메서드로 thiefNumber를 업데이트할 수 있어야 한다")
+    void shouldUpdateThiefNumber() {
+        // given
+        GamePlayerRedis player = GamePlayerRedis.builder()
+                .id("player-123")
+                .team(Team.THIEF)
+                .thiefNumber(1)
+                .build();
+
+        GamePlayerUpdateCommand command = GamePlayerUpdateCommand.builder()
+                .thiefNumber(42)
+                .build();
+
+        // when
+        player.update(command);
+
+        // then
+        assertThat(player.getThiefNumber()).isEqualTo(42);
+    }
+
+    @Test
+    @DisplayName("update 메서드로 status를 JAILED로 변경할 수 있어야 한다")
+    void shouldUpdateStatusToJailed() {
+        // given
+        GamePlayerRedis player = GamePlayerRedis.builder()
+                .id("player-123")
+                .team(Team.THIEF)
+                .status(PlayerStatus.ACTIVE)
+                .build();
+
+        GamePlayerUpdateCommand command = GamePlayerUpdateCommand.builder()
+                .status(PlayerStatus.JAILED)
+                .jailedJailNo(1)
+                .build();
+
+        // when
+        player.update(command);
+
+        // then
+        assertThat(player.getStatus()).isEqualTo(PlayerStatus.JAILED);
+        assertThat(player.getJailedJailNo()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("update 메서드에서 null 값은 기존 값을 유지해야 한다")
+    void shouldNotUpdateWhenCommandValueIsNull() {
+        // given
+        GamePlayerRedis player = GamePlayerRedis.builder()
+                .id("player-123")
+                .team(Team.THIEF)
+                .thiefNumber(42)
+                .status(PlayerStatus.ACTIVE)
+                .build();
+
+        GamePlayerUpdateCommand command = GamePlayerUpdateCommand.builder()
+                .thiefNumber(null)
+                .status(null)
+                .build();
+
+        // when
+        player.update(command);
+
+        // then
+        assertThat(player.getThiefNumber()).isEqualTo(42);
+        assertThat(player.getStatus()).isEqualTo(PlayerStatus.ACTIVE);
     }
 }

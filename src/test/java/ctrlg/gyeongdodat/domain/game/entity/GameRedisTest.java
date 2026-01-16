@@ -1,6 +1,7 @@
 package ctrlg.gyeongdodat.domain.game.entity;
 
 import ctrlg.gyeongdodat.domain.game.enums.WinTeam;
+import ctrlg.gyeongdodat.domain.game.service.command.GameUpdateCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,7 @@ class GameRedisTest {
         String jailImage = "http://example.com/jail.png";
         WinTeam winTeam = WinTeam.POLICE;
         String rulesJson = "{\"maxPlayers\": 10}";
+        String attendanceCode = "1234";
         LocalDateTime startedAt = LocalDateTime.now();
         LocalDateTime endedAt = LocalDateTime.now().plusHours(1);
         LocalDateTime createdAt = LocalDateTime.now();
@@ -39,6 +41,7 @@ class GameRedisTest {
                 .jailImage(jailImage)
                 .winTeam(winTeam)
                 .rulesJson(rulesJson)
+                .attendanceCode(attendanceCode)
                 .startedAt(startedAt)
                 .endedAt(endedAt)
                 .createdAt(createdAt)
@@ -54,6 +57,7 @@ class GameRedisTest {
         assertThat(gameRedis.getJailImage()).isEqualTo(jailImage);
         assertThat(gameRedis.getWinTeam()).isEqualTo(winTeam);
         assertThat(gameRedis.getRulesJson()).isEqualTo(rulesJson);
+        assertThat(gameRedis.getAttendanceCode()).isEqualTo(attendanceCode);
         assertThat(gameRedis.getStartedAt()).isEqualTo(startedAt);
         assertThat(gameRedis.getEndedAt()).isEqualTo(endedAt);
         assertThat(gameRedis.getCreatedAt()).isEqualTo(createdAt);
@@ -100,5 +104,48 @@ class GameRedisTest {
 
         // then
         assertThat(gameRedis.getUpdatedAt()).isAfter(before);
+    }
+
+    @Test
+    @DisplayName("update 메서드로 attendanceCode를 업데이트할 수 있어야 한다")
+    void shouldUpdateAttendanceCode() {
+        // given
+        GameRedis gameRedis = GameRedis.builder()
+                .id("game-123")
+                .attendanceCode("1234")
+                .build();
+
+        GameUpdateCommand command = GameUpdateCommand.builder()
+                .attendanceCode("5678")
+                .build();
+
+        // when
+        gameRedis.update(command);
+
+        // then
+        assertThat(gameRedis.getAttendanceCode()).isEqualTo("5678");
+    }
+
+    @Test
+    @DisplayName("update 메서드에서 null 값은 기존 값을 유지해야 한다")
+    void shouldNotUpdateWhenCommandValueIsNull() {
+        // given
+        GameRedis gameRedis = GameRedis.builder()
+                .id("game-123")
+                .attendanceCode("1234")
+                .winTeam(WinTeam.POLICE)
+                .build();
+
+        GameUpdateCommand command = GameUpdateCommand.builder()
+                .attendanceCode(null)
+                .winTeam(null)
+                .build();
+
+        // when
+        gameRedis.update(command);
+
+        // then
+        assertThat(gameRedis.getAttendanceCode()).isEqualTo("1234");
+        assertThat(gameRedis.getWinTeam()).isEqualTo(WinTeam.POLICE);
     }
 }

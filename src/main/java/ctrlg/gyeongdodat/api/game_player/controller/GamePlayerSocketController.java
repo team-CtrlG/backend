@@ -1,5 +1,8 @@
 package ctrlg.gyeongdodat.api.game_player.controller;
 
+import ctrlg.gyeongdodat.api.game_player.dto.ArrestRequest;
+import ctrlg.gyeongdodat.api.game_player.dto.PlayerPositionResponse;
+import ctrlg.gyeongdodat.api.game_player.dto.RescueRequest;
 import ctrlg.gyeongdodat.api.game_player.facade.GamePlayerFacade;
 import ctrlg.gyeongdodat.domain.game_player.entity.GamePlayerPosRedis;
 import ctrlg.gyeongdodat.domain.game_player.entity.GamePlayerRedis;
@@ -31,7 +34,7 @@ public class GamePlayerSocketController {
      */
     @MessageMapping("/game/join")
     public void joinGame(@Payload GamePlayerCreateCommand command) {
-        log.info("Player {} joining game {}", command.getUserId(), command.getGameId());
+        log.info("게임 참가 요청 - 유저ID: {}, 게임ID: {}", command.getUserId(), command.getGameId());
 
         // Facade를 통해 플레이어 생성 및 위치 초기화
         GamePlayerRedis player = gamePlayerFacade.joinGame(command);
@@ -88,5 +91,41 @@ public class GamePlayerSocketController {
         if (gameId != null) {
             messagingTemplate.convertAndSend("/send/game/" + gameId + "/leave", gamePlayerId);
         }
+    }
+
+    /**
+     * 체포: 경찰이 도둑을 체포
+     * Client sends to: /app/game/{gameId}/arrest
+     * Broadcasts to: /send/game/{gameId}/arrest
+     */
+    @MessageMapping("/game/{gameId}/arrest")
+    public void arrestThief(@DestinationVariable String gameId, @Payload ArrestRequest request) {
+        log.info("체포 요청 - 경찰ID: {}, 도둑번호: {}, 게임ID: {}", request.getPolicePlayerId(), request.getThiefNumber(), gameId);
+        GamePlayerRedis arrestedThief = gamePlayerFacade.arrestThief(gameId, request.getPolicePlayerId(), request.getThiefNumber());
+        messagingTemplate.convertAndSend("/send/game/" + gameId + "/arrest", arrestedThief);
+    }
+
+    /**
+     * 구출: 도둑이 수감된 동료를 구출
+     * Client sends to: /app/game/{gameId}/rescue
+     * Broadcasts to: /send/game/{gameId}/rescue
+     */
+    @MessageMapping("/game/{gameId}/rescue")
+    public void rescueThief(@DestinationVariable String gameId, @Payload RescueRequest request) {
+        log.info("구출 요청 - 구출자ID: {}, 대상도둑번호: {}, 게임ID: {}", request.getRescuerPlayerId(), request.getTargetThiefNumber(), gameId);
+        GamePlayerRedis rescuedThief = gamePlayerFacade.rescueThief(gameId, request.getRescuerPlayerId(), request.getTargetThiefNumber());
+        messagingTemplate.convertAndSend("/send/game/" + gameId + "/rescue", rescuedThief);
+    }
+
+    /**
+     * 전체 플레이어 위치 조회
+     * Client sends to: /app/game/{gameId}/positions
+     * Broadcasts to: /send/game/{gameId}/positions
+     */
+    @MessageMapping("/game/{gameId}/positions")
+    public void getAllPlayerPositions(@DestinationVariable String gameId) {
+        log.info("전체 플레이어 위치 조회 요청 - 게임ID: {}", gameId);
+        List<PlayerPositionResponse> positions = gamePlayerFacade.getAllPlayerPositions(gameId);
+        messagingTemplate.convertAndSend("/send/game/" + gameId + "/positions", positions);
     }
 }
