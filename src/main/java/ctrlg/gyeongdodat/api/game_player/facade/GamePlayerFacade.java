@@ -1,6 +1,5 @@
 package ctrlg.gyeongdodat.api.game_player.facade;
 
-import ctrlg.gyeongdodat.api.game_player.dto.PlayerPositionResponse;
 import ctrlg.gyeongdodat.domain.game_player.entity.GamePlayerPosRedis;
 import ctrlg.gyeongdodat.domain.game_player.entity.GamePlayerRedis;
 import ctrlg.gyeongdodat.domain.game_player.enums.PlayerStatus;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -60,29 +58,6 @@ public class GamePlayerFacade {
 
 	public GamePlayerPosRedis updatePlayerLocation(String id, GamePlayerPosUpdateCommand command) {
 		return playerPosService.update(id, command);
-	}
-
-	/**
-	 * 게임의 모든 플레이어 위치 조회
-	 * @param gameId 게임 ID
-	 * @return 모든 플레이어의 위치 정보 목록
-	 */
-	public List<PlayerPositionResponse> getAllPlayerPositions(String gameId) {
-		List<GamePlayerRedis> players = playerService.findByGameId(gameId);
-
-		return players.stream()
-				.map(player -> {
-					GamePlayerPosRedis pos = playerPosService.findByGamePlayerId(player.getId());
-					return PlayerPositionResponse.builder()
-							.playerId(player.getId())
-							.team(player.getTeam())
-							.status(player.getStatus())
-							.lat(pos.getLat())
-							.lng(pos.getLng())
-							.thiefNumber(player.getThiefNumber())
-							.build();
-				})
-				.collect(Collectors.toList());
 	}
 
 	/**

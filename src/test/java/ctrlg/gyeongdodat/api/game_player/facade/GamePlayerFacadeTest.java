@@ -1,7 +1,5 @@
 package ctrlg.gyeongdodat.api.game_player.facade;
 
-import ctrlg.gyeongdodat.api.game_player.dto.PlayerPositionResponse;
-import ctrlg.gyeongdodat.domain.game_player.entity.GamePlayerPosRedis;
 import ctrlg.gyeongdodat.domain.game_player.entity.GamePlayerRedis;
 import ctrlg.gyeongdodat.domain.game_player.enums.PlayerStatus;
 import ctrlg.gyeongdodat.domain.game_player.enums.Team;
@@ -17,9 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,83 +34,6 @@ class GamePlayerFacadeTest {
 
     @Mock
     private GamePlayerPosRedisService playerPosService;
-
-    @Nested
-    @DisplayName("getAllPlayerPositions 메서드")
-    class GetAllPlayerPositions {
-
-        @Test
-        @DisplayName("모든 플레이어의 위치 정보를 반환한다")
-        void getAllPlayerPositionsSuccess() {
-            // given
-            String gameId = "game-123";
-
-            GamePlayerRedis player1 = GamePlayerRedis.builder()
-                    .id("player-1")
-                    .gameId(gameId)
-                    .team(Team.POLICE)
-                    .status(PlayerStatus.ACTIVE)
-                    .build();
-
-            GamePlayerRedis player2 = GamePlayerRedis.builder()
-                    .id("player-2")
-                    .gameId(gameId)
-                    .team(Team.THIEF)
-                    .thiefNumber(1)
-                    .status(PlayerStatus.ACTIVE)
-                    .build();
-
-            GamePlayerPosRedis pos1 = GamePlayerPosRedis.builder()
-                    .gamePlayerId("player-1")
-                    .lat(new BigDecimal("37.5665"))
-                    .lng(new BigDecimal("126.9780"))
-                    .build();
-
-            GamePlayerPosRedis pos2 = GamePlayerPosRedis.builder()
-                    .gamePlayerId("player-2")
-                    .lat(new BigDecimal("37.5700"))
-                    .lng(new BigDecimal("126.9800"))
-                    .build();
-
-            given(playerService.findByGameId(gameId)).willReturn(List.of(player1, player2));
-            given(playerPosService.findByGamePlayerId("player-1")).willReturn(pos1);
-            given(playerPosService.findByGamePlayerId("player-2")).willReturn(pos2);
-
-            // when
-            List<PlayerPositionResponse> result = gamePlayerFacade.getAllPlayerPositions(gameId);
-
-            // then
-            assertThat(result).hasSize(2);
-
-            PlayerPositionResponse policePos = result.stream()
-                    .filter(p -> p.getTeam() == Team.POLICE)
-                    .findFirst().orElseThrow();
-            assertThat(policePos.getPlayerId()).isEqualTo("player-1");
-            assertThat(policePos.getLat()).isEqualTo(new BigDecimal("37.5665"));
-            assertThat(policePos.getLng()).isEqualTo(new BigDecimal("126.9780"));
-
-            PlayerPositionResponse thiefPos = result.stream()
-                    .filter(p -> p.getTeam() == Team.THIEF)
-                    .findFirst().orElseThrow();
-            assertThat(thiefPos.getPlayerId()).isEqualTo("player-2");
-            assertThat(thiefPos.getThiefNumber()).isEqualTo(1);
-        }
-
-        @Test
-        @DisplayName("플레이어가 없는 게임은 빈 리스트를 반환한다")
-        void getAllPlayerPositionsEmptyGame() {
-            // given
-            String gameId = "game-123";
-
-            given(playerService.findByGameId(gameId)).willReturn(List.of());
-
-            // when
-            List<PlayerPositionResponse> result = gamePlayerFacade.getAllPlayerPositions(gameId);
-
-            // then
-            assertThat(result).isEmpty();
-        }
-    }
 
     @Nested
     @DisplayName("arrestThief 메서드")

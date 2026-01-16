@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class GamePlayerController {
+public class GamePlayerController implements GamePlayerControllerSpec {
 
 	private final GamePlayerFacade gamePlayerFacade;
 
