@@ -1,5 +1,6 @@
 package ctrlg.gyeongdodat.api.game.facade;
 
+import ctrlg.gyeongdodat.domain.game.dto.Location;
 import ctrlg.gyeongdodat.domain.game.entity.GameRedis;
 import ctrlg.gyeongdodat.domain.game.service.GameRedisService;
 import ctrlg.gyeongdodat.domain.game.service.command.GameCreateCommand;
@@ -30,6 +31,13 @@ public class GameFacade {
 
 	public GameRedis findGameById(String gameId) {
 		return gameService.findById(gameId);
+	}
+
+	public GameRedis setGameArea(String gameId, List<Location> gameArea) {
+		GameUpdateCommand update = GameUpdateCommand.builder()
+				.gameArea(gameArea)
+				.build();
+		return gameService.update(gameId, update);
 	}
 
 	public GameRedis startGame(String gameId) {
