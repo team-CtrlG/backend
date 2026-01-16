@@ -26,6 +26,8 @@ public class GameCreateCommand {
 
 	private String rulesJson;
 
+	private String attendanceCode;
+
 	public GameRedis toEntity(String id) {
 		return GameRedis.builder()
 			.id(id)
@@ -35,6 +37,7 @@ public class GameCreateCommand {
 			.jailLng(jailLng)
 			.jailImage(jailImage)
 			.rulesJson(rulesJson)
+			.attendanceCode(attendanceCode)
 			.build();
 	}
 }

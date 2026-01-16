@@ -25,6 +25,10 @@ public class GamePlayerUpdateCommand {
 
 	private Integer jailedJailNo;
 
+	private Boolean clearJailedJailNo;
+
+	private Integer thiefNumber;
+
 	private Boolean attendanceYn;
 
 	private PlayerStatus status;

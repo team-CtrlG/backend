@@ -1,9 +1,11 @@
 package ctrlg.gyeongdodat.api.game.controller;
 
+import ctrlg.gyeongdodat.api.game.dto.AttendanceRequest;
 import ctrlg.gyeongdodat.api.game.facade.GameFacade;
 import ctrlg.gyeongdodat.domain.game.dto.SetGameAreaRequest;
 import ctrlg.gyeongdodat.domain.game.entity.GameRedis;
 import ctrlg.gyeongdodat.domain.game.service.command.GameCreateCommand;
+import ctrlg.gyeongdodat.domain.game_player.entity.GamePlayerRedis;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -30,7 +32,7 @@ public class GameSocketController {
 	 */
 	@MessageMapping("/game/create")
 	public void createGame(@Payload GameCreateCommand command) {
-		log.info("Creating game with time: {}", command.getGameTimeSec());
+		log.info("게임 생성 요청 - 게임시간: {}초", command.getGameTimeSec());
 		GameRedis game = gameFacade.createGame(command);
 		messagingTemplate.convertAndSend("/send/game/created", game);
 	}
@@ -64,7 +66,7 @@ public class GameSocketController {
 	 */
 	@MessageMapping("/game/{gameId}/set-area")
 	public void setGameArea(@DestinationVariable String gameId, @Payload SetGameAreaRequest request) {
-		log.info("Setting game area for game {}", gameId);
+		log.info("게임 영역 설정 요청 - 게임ID: {}", gameId);
 		GameRedis game = gameFacade.setGameArea(gameId, request.getGameArea());
 		messagingTemplate.convertAndSend("/send/game/" + gameId + "/area-set", game);
 	}
@@ -76,7 +78,7 @@ public class GameSocketController {
 	 */
 	@MessageMapping("/game/{gameId}/start")
 	public void startGame(@DestinationVariable String gameId) {
-		log.info("Starting game {}", gameId);
+		log.info("게임 시작 요청 - 게임ID: {}", gameId);
 		GameRedis game = gameFacade.startGame(gameId);
 		messagingTemplate.convertAndSend("/send/game/" + gameId + "/start", game);
 	}
@@ -88,8 +90,44 @@ public class GameSocketController {
 	 */
 	@MessageMapping("/game/{gameId}/delete")
 	public void deleteGame(@DestinationVariable String gameId) {
-		log.info("Deleting game {}", gameId);
+		log.info("게임 삭제 요청 - 게임ID: {}", gameId);
 		gameFacade.deleteGame(gameId);
 		messagingTemplate.convertAndSend("/send/game/deleted", gameId);
+	}
+
+	/**
+	 * 출석 체크
+	 * Client sends to: /app/game/{gameId}/attendance
+	 * Broadcasts to: /send/game/{gameId}/attendance
+	 */
+	@MessageMapping("/game/{gameId}/attendance")
+	public void checkAttendance(@DestinationVariable String gameId, @Payload AttendanceRequest request) {
+		log.info("출석 체크 요청 - 플레이어ID: {}, 게임ID: {}", request.getPlayerId(), gameId);
+		GamePlayerRedis player = gameFacade.checkAttendance(gameId, request.getPlayerId(), request.getCode());
+		messagingTemplate.convertAndSend("/send/game/" + gameId + "/attendance", player);
+	}
+
+	/**
+	 * 남은 시간 조회
+	 * Client sends to: /app/game/{gameId}/time
+	 * Broadcasts to: /send/game/{gameId}/time
+	 */
+	@MessageMapping("/game/{gameId}/time")
+	public void getRemainingTime(@DestinationVariable String gameId) {
+		log.info("남은 시간 조회 요청 - 게임ID: {}", gameId);
+		Integer remainingSec = gameFacade.getRemainingTimeSec(gameId);
+		messagingTemplate.convertAndSend("/send/game/" + gameId + "/time", remainingSec);
+	}
+
+	/**
+	 * 게임 종료 및 승리 팀 판정
+	 * Client sends to: /app/game/{gameId}/end
+	 * Broadcasts to: /send/game/{gameId}/end
+	 */
+	@MessageMapping("/game/{gameId}/end")
+	public void endGame(@DestinationVariable String gameId) {
+		log.info("게임 종료 요청 - 게임ID: {}", gameId);
+		GameRedis game = gameFacade.endGame(gameId);
+		messagingTemplate.convertAndSend("/send/game/" + gameId + "/end", game);
 	}
 }

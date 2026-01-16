@@ -45,6 +45,8 @@ public class GamePlayerRedis extends BaseRedisTimeEntity {
 
     private Integer jailedJailNo;
 
+    private Integer thiefNumber;
+
     private boolean attendanceYn;
 
     private PlayerStatus status;
@@ -71,6 +73,12 @@ public class GamePlayerRedis extends BaseRedisTimeEntity {
         }
         if (command.getJailedJailNo() != null) {
             this.jailedJailNo = command.getJailedJailNo();
+        }
+        if (Boolean.TRUE.equals(command.getClearJailedJailNo())) {
+            this.jailedJailNo = null;
+        }
+        if (command.getThiefNumber() != null) {
+            this.thiefNumber = command.getThiefNumber();
         }
         if (command.getAttendanceYn() != null) {
             this.attendanceYn = command.getAttendanceYn();

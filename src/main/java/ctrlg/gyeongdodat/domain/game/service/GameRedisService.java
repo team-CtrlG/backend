@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -18,11 +19,27 @@ import java.util.stream.StreamSupport;
 public class GameRedisService {
 
     private final GameRedisRepository gameRedisRepository;
+    private final Random random = new Random();
 
     public GameRedis create(GameCreateCommand command) {
         String id = UlidCreator.getUlid().toString();
         GameRedis game = command.toEntity(id);
+
+        // 출석코드가 없으면 자동 생성
+        if (game.getAttendanceCode() == null || game.getAttendanceCode().isEmpty()) {
+            String attendanceCode = generateAttendanceCode();
+            GameUpdateCommand updateCommand = GameUpdateCommand.builder()
+                    .attendanceCode(attendanceCode)
+                    .build();
+            game.update(updateCommand);
+        }
+
         return gameRedisRepository.save(game);
+    }
+
+    public String generateAttendanceCode() {
+        int code = random.nextInt(10000);
+        return String.format("%04d", code);
     }
 
     public GameRedis findById(String id) {

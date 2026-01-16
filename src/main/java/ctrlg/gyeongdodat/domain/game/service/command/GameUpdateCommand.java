@@ -23,4 +23,6 @@ public class GameUpdateCommand {
   private LocalDateTime endedAt;
 
   private List<Location> gameArea;
+
+  private String attendanceCode;
 }
