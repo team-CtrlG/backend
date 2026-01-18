@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/games/{gameId}/logs")
-public class GameLogController {
+public class GameLogController implements GameLogControllerSpec {
 
 	private final GameLogFacade logFacade;
 
