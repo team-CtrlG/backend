@@ -1,0 +1,8 @@
+springdoc:
+  swagger-ui:
+    path: /swagger
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /swagger/api-docs
+  show-actuator: false
